@@ -1,18 +1,22 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../Page/Header/Navbar";
-import Footer from "../Component/Footer/Footer";
-
+import Footer from "../Page/Footer/Footer";
 
 const MailLayOut = () => {
-    return (
-        <div>
+  return (
+    <div className="flex flex-col min-h-screen">
+      {/* Header always at top */}
+      <Navbar />
 
-            <Navbar></Navbar>
-            <Outlet></Outlet>
-            <Footer></Footer>
+      {/* Page content grows to fill the space */}
+      <main className="flex-grow">
+        <Outlet />
+      </main>
 
-        </div>
-    );
+      {/* Footer always at bottom */}
+      <Footer />
+    </div>
+  );
 };
 
 export default MailLayOut;
