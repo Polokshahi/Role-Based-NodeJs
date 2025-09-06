@@ -9,59 +9,39 @@ import {
     signOut
 } from "firebase/auth";
 import app from "../Firebase/Firebase.init";
+import axios from "axios";
 
 export const AuthContext = createContext(null);
 const auth = getAuth(app);
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true); // add loading state
+    const [role, setRole] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Create user with email & password
-    const createUser = (email, password) => {
-        return createUserWithEmailAndPassword(auth, email, password);
-    };
-
-    // Sign in with email & password
-    const signIn = (email, password) => {
-        return signInWithEmailAndPassword(auth, email, password);
-    };
-
-    // Google login
+    const createUser = (email, password) => createUserWithEmailAndPassword(auth, email, password);
+    const signIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
     const googleProvider = new GoogleAuthProvider();
-    const googleLogin = () => {
-        return signInWithPopup(auth, googleProvider);
-    };
+    const googleLogin = () => signInWithPopup(auth, googleProvider);
+    const logOut = () => signOut(auth);
 
-    // Logout
-    const logOut = () => {
-        return signOut(auth);
-    };
-
-    // Track logged-in user
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, currentUser => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
-            setLoading(false); // auth check done
-            console.log("Current user:", currentUser);
+            if (currentUser?.email) {
+                const res = await axios.get(`http://localhost:3000/users/${currentUser.email}`);
+                setRole(res.data?.role || "user");
+            } else {
+                setRole(null);
+            }
+            setLoading(false);
         });
         return () => unsubscribe();
     }, []);
 
-    const authInfo = {
-        user,
-        loading, // expose loading state
-        createUser,
-        signIn,
-        googleLogin,
-        logOut,
-    };
+    const authInfo = { user, role, loading, createUser, signIn, googleLogin, logOut, };
 
-    return (
-        <AuthContext.Provider value={authInfo}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

@@ -1,152 +1,111 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../../AuthContext/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Register = () => {
-    const { createUser, googleLogin } = useContext(AuthContext);
-    const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+  const { createUser, googleLogin } = useContext(AuthContext);
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-    const handleRegister = e => {
-        e.preventDefault();
-        const form = e.target;
-        const name = form.name.value;
-        const imageUrl = form.imageUrl.value;
-        const email = form.email.value;
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.name.value;
+    const email = form.email.value;
+    const imageUrl = form.imageUrl.value;
 
-        // Validate password before submitting
-        const regex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
-        if (!regex.test(password)) {
-            alert("Password must be at least 6 characters, include 1 uppercase and 1 special character.");
-            return;
-        }
+    const regex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
+    if (!regex.test(password)) {
+      alert("Password must be at least 6 characters, include 1 uppercase and 1 special character");
+      return;
+    }
 
-        createUser(email, password)
-            .then(result => {
-                const user = result.user;
-                console.log("Registered User:", user);
+    try {
+      // Create user in Firebase
+      await createUser(email, password);
 
-                // Optionally update profile with name & photo
-                if (name || imageUrl) {
-                    import("firebase/auth").then(({ updateProfile }) => {
-                        updateProfile(user, {
-                            displayName: name,
-                            photoURL: imageUrl
-                        }).then(() => {
-                            console.log("Profile updated");
-                            navigate('/login');
-                        }).catch(err => console.error(err));
-                    });
-                }
-            })
-            .catch(error => {
-                console.error("Registration Error:", error.message);
-            });
-    };
+      // Add user to backend with default role
+      await axios.post("http://localhost:3000/users", { name, email, image: imageUrl });
 
-    const handleGoogleLogin = () => {
-        googleLogin()
-            .then(result => {
-                console.log("Google Login User:", result.user);
-            })
-            .catch(error => {
-                console.error("Google Login Error:", error.message);
-            });
-    };
+      // Navigate to login page WITHOUT updating profile here
+      navigate("/login");
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
 
-    // Password conditions
-    const conditions = [
-        { label: "At least 6 characters", valid: password.length >= 6 },
-        { label: "One uppercase letter", valid: /[A-Z]/.test(password) },
-        { label: "One special character (!@#$%^&*)", valid: /[!@#$%^&*]/.test(password) },
-    ];
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await googleLogin();
+      const user = result.user;
 
-    return (
-        <div className="min-h-screen bg-base-200 flex items-center justify-center">
-            <div className="hero-content flex-col lg:flex-row-reverse w-full">
-                <div className="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-100">
-                    <form onSubmit={handleRegister} className="card-body">
-                        {/* Name input */}
-                        <div className="form-control">
-                            <label className="label">
-                                <span className="label-text">Name</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="name"
-                                placeholder="Enter your name"
-                                className="input input-bordered"
-                                required
-                            />
-                        </div>
+      // Add user to backend with default role
+      await axios.post("http://localhost:3000/users", {
+        name: user.displayName,
+        email: user.email,
+        image: user.photoURL,
+      });
 
-                        {/* Image URL input */}
-                        <div className="form-control">
-                            <label className="label">
-                                <span className="label-text">Image URL</span>
-                            </label>
-                            <input
-                                type="url"
-                                name="imageUrl"
-                                placeholder="Enter image URL"
-                                className="input input-bordered"
-                            />
-                        </div>
+      navigate("/"); // Google login can redirect immediately
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
 
-                        {/* Email input */}
-                        <div className="form-control">
-                            <label className="label">
-                                <span className="label-text">Email</span>
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                placeholder="Enter your email"
-                                className="input input-bordered"
-                                required
-                            />
-                        </div>
-
-                        {/* Password input */}
-                        <div className="form-control">
-                            <label className="label">
-                                <span className="label-text">Password</span>
-                            </label>
-                            <input
-                                type="password"
-                                name="password"
-                                placeholder="Enter your password"
-                                className="input input-bordered"
-                                required
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                            />
-                            {/* Live password conditions */}
-                            <ul className="text-sm mt-2 ml-2">
-                                {conditions.map((cond, i) => (
-                                    <li key={i} className={cond.valid ? "text-green-500" : "text-red-500"}>
-                                        {cond.label}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Submit button */}
-                        <div className="form-control mt-6">
-                            <button className="btn btn-primary">Register</button>
-                            <button
-                                type="button"
-                                onClick={handleGoogleLogin}
-                                className="btn bg-red-600 text-white mt-2"
-                            >
-                                Google Login
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-full max-w-md p-6 rounded-xl shadow-lg bg-[#1d232a]">
+        <h2 className="text-2xl font-bold mb-6 text-center text-yellow-400">
+          Register
+        </h2>
+        <form onSubmit={handleRegister} className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            className="w-full px-4 py-3 rounded-lg shadow-inner border border-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            className="w-full px-4 py-3 rounded-lg shadow-inner border border-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            required
+          />
+          <input
+            type="url"
+            name="imageUrl"
+            placeholder="Image URL"
+            className="w-full px-4 py-3 rounded-lg shadow-inner border border-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg shadow-inner border border-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full py-3 rounded-lg font-bold bg-blue-700 text-white"
+          >
+            Register
+          </button>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full py-3 rounded-lg font-bold mt-2 bg-red-600 text-white"
+          >
+            Google Login
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default Register;

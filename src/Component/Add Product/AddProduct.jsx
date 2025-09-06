@@ -1,5 +1,4 @@
 import axios from 'axios';
-import React from 'react';
 import Swal from 'sweetalert2';
 
 const AddProduct = () => {
@@ -13,7 +12,7 @@ const AddProduct = () => {
 
         const addNewProduct = { name, image, price };
 
-        axios.post('http://localhost:3000/addProduct', addNewProduct)
+        axios.post('http://localhost:3000/allproducts', addNewProduct)
             .then(response => {
                 console.log('Product added successfully:', response.data);
 

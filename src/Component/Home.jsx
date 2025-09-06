@@ -1,3 +1,4 @@
+import Slider from "./Slider/Slider";
 
 
 
@@ -5,7 +6,12 @@ const Home = () => {
     return (
         <div>
 
-            <h1>THis is Home Page</h1>
+
+            <div className="mb-10">
+                <Slider></Slider>
+            </div>
+
+            
 
 
 
