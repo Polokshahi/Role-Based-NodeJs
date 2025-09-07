@@ -12,7 +12,7 @@ const Slider = () => {
     <div className="w-full max-w-6xl mx-auto mt-20">
       <Swiper
         spaceBetween={30}
-        centeredSlides={true}
+        centeredSlides={true} 
         autoplay={{
           delay: 2500,
           disableOnInteraction: false,

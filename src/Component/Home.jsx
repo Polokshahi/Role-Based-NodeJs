@@ -1,8 +1,12 @@
+import { useEffect } from "react";
 import Slider from "./Slider/Slider";
 
 
 
 const Home = () => {
+    useEffect(() =>{
+        document.title = 'Home'
+    })
     return (
         <div>
 

@@ -47,7 +47,7 @@ const Register = () => {
         image: user.photoURL,
       });
 
-      navigate("/"); // Google login can redirect immediately
+      navigate("/");
     } catch (err) {
       console.error(err.message);
     }

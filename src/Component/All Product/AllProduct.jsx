@@ -4,13 +4,18 @@ import { AuthContext } from '../../AuthContext/AuthProvider';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+
 const AllProduct = () => {
   const allProduct = useLoaderData();
   const [allProducts, setAllProducts] = useState(allProduct);
+  const [addtoCart, setAddToCart] = useState(null);
   const { user } = useContext(AuthContext);
   const [userRole, setUserRole] = useState(null);
 
   // Fetch current logged-in user's role from backend
+  useEffect(() =>{
+    document.title = 'All Products'
+  },[])
   useEffect(() => {
     if (user?.email) {
       axios
@@ -49,7 +54,69 @@ const AllProduct = () => {
           });
       }
     });
+
+
+
   };
+
+
+   // handleAddToCart function
+
+    const handleAddCart = (id) => {
+  // Find the product
+  const targetedProduct = allProducts.find(product => product._id === id);
+
+  if (!targetedProduct) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Product not found!',
+    });
+    return;
+  }
+
+
+  const cartDataWithEmail = {
+    ...targetedProduct,
+    userEmail: user?.email,
+  };
+
+  // Send to backend
+  axios.post('http://localhost:3000/addtoCart', cartDataWithEmail)
+    .then(res => {
+      if (res.data.insertedId || res.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Added!',
+          text: 'Product added to cart successfully.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed',
+          text: 'Invalid product. Could not add to cart.',
+        });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong while adding the product.',
+      });
+    });
+
+
+   
+
+
+
+
+};
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-5 py-10 mt-14">
@@ -91,7 +158,7 @@ const AllProduct = () => {
                 <button className="btn bg-green-600 hover:bg-green-700 text-white">
                   Purchase
                 </button>
-                <button className="btn bg-orange-600 hover:bg-orange-700 text-white">
+                <button onClick={() => handleAddCart(product._id)} className="btn bg-orange-600 hover:bg-orange-700 text-white">
                   Add to Cart
                 </button>
               </div>

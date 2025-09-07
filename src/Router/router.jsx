@@ -5,12 +5,10 @@ import Register from "../Component/Register/Register";
 import Login from "../Component/Login/Login";
 import Dashboard from "../Component/Dashboard/Dashboard";
 import AllProduct from "../Component/All Product/AllProduct";
-import PrivateRoute, { AdminRoute } from "./PrivateRoute";
-import Admin from "../Role/Admin";
-import Unauthorized from "../Role/Unauthorized";
 import Error from "../Page/Error/Error";
 import AddProduct from "../Component/Add Product/AddProduct";
 import AddtoCart from "../Page/AddtoCart/AddtoCart";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -46,14 +44,9 @@ const router = createBrowserRouter([
           loader: () => fetch('http://localhost:3000/users')
       },
 
-      // Admin route (role-based)
-      {
-        path: "/admin",
-        element: <AdminRoute><Admin /></AdminRoute>,
-      },
+    
 
-      // Unauthorized page
-      { path: "/unauthorized", element: <Unauthorized /> },
+    
 
       // Catch-all route for 404
       { path: "*", element: <Error /> },
