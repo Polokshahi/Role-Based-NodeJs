@@ -1,7 +1,9 @@
 import { useEffect } from "react";
-import Slider from "./Slider/Slider";
+
 import Card from "./CardComponent/Card";
 import Title from "./Title/Title";
+import Banner from "./Slider/Banner";
+
 
 
 
@@ -14,7 +16,7 @@ const Home = () => {
 
 
             <div className="mb-10">
-                <Slider></Slider>
+                 <Banner></Banner>
             </div>
 
             {/* title */}

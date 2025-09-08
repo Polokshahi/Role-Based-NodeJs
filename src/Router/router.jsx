@@ -1,14 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
 import MailLayOut from "../LayOut/MailLayOut";
 import Home from "../Component/Home";
-import Register from "../Component/Register/Register";
-import Login from "../Component/Login/Login";
 import Dashboard from "../Component/Dashboard/Dashboard";
 import AllProduct from "../Component/All Product/AllProduct";
 import Error from "../Page/Error/Error";
 import AddProduct from "../Component/Add Product/AddProduct";
 import AddtoCart from "../Page/AddtoCart/AddtoCart";
 import PrivateRoute from "./PrivateRoute";
+import VerifyEmail from "../Page/VerifyEmail";
+import Login from "../Component/Login/Login";
+import Register from "../Component/Register/Register";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,11 @@ const router = createBrowserRouter([
       
       
       }, 
+
+      {
+          path: '/verify-email',
+          element: <VerifyEmail></VerifyEmail>
+      },
       
       
       

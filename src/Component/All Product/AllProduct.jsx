@@ -1,21 +1,19 @@
 import { useContext, useEffect, useState } from 'react';
-import { Link, useLoaderData } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext/AuthProvider';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-
 const AllProduct = () => {
   const allProduct = useLoaderData();
   const [allProducts, setAllProducts] = useState(allProduct);
-  const [addtoCart, setAddToCart] = useState(null);
   const { user } = useContext(AuthContext);
   const [userRole, setUserRole] = useState(null);
 
-  // Fetch current logged-in user's role from backend
-  useEffect(() =>{
-    document.title = 'All Products'
-  },[])
+  useEffect(() => {
+    document.title = 'All Products';
+  }, []);
+
   useEffect(() => {
     if (user?.email) {
       axios
@@ -25,15 +23,14 @@ const AllProduct = () => {
     }
   }, [user]);
 
-  // delete product handler with SweetAlert
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Are you sure?',
       text: 'This product will be permanently deleted!',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#000',
+      cancelButtonColor: '#555',
       confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
@@ -41,10 +38,7 @@ const AllProduct = () => {
           .delete(`http://localhost:3000/allproducts/${id}`)
           .then((res) => {
             if (res.data.deletedCount > 0) {
-              // remove deleted product from state
-              const remaining = allProducts.filter((p) => p._id !== id);
-              setAllProducts(remaining);
-
+              setAllProducts(allProducts.filter((p) => p._id !== id));
               Swal.fire('Deleted!', 'Product has been removed.', 'success');
             }
           })
@@ -54,79 +48,57 @@ const AllProduct = () => {
           });
       }
     });
-
-
-
   };
 
-
-   // handleAddToCart function
-
-    const handleAddCart = (id) => {
-  // Find the product
-  const targetedProduct = allProducts.find(product => product._id === id);
-
-  if (!targetedProduct) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Product not found!',
-    });
-    return;
-  }
-
-
-  const cartDataWithEmail = {
-    ...targetedProduct,
-    userEmail: user?.email,
-  };
-
-  // Send to backend
-  axios.post('http://localhost:3000/addtoCart', cartDataWithEmail)
-    .then(res => {
-      if (res.data.insertedId || res.data.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Added!',
-          text: 'Product added to cart successfully.',
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed',
-          text: 'Invalid product. Could not add to cart.',
-        });
-      }
-    })
-    .catch(err => {
-      console.error(err);
+  const handleAddCart = (id) => {
+    const targetedProduct = allProducts.find((product) => product._id === id);
+    if (!targetedProduct) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Something went wrong while adding the product.',
+        title: 'Oops...',
+        text: 'Product not found!',
       });
-    });
+      return;
+    }
 
-
-   
-
-
-
-
-};
-
+    axios
+      .post('http://localhost:3000/addtoCart', { ...targetedProduct, userEmail: user?.email })
+      .then((res) => {
+        if (res.data.insertedId || res.data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Added!',
+            text: 'Product added to cart successfully.',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed',
+            text: 'Invalid product. Could not add to cart.',
+          });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong while adding the product.',
+        });
+      });
+  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-5 py-10 mt-14">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-5 py-12 mt-4 max-w-7xl mx-auto">
       {allProducts.map((product) => (
         <div
           key={product._id}
-          className="bg-black border border-gray-700 rounded-xl p-5 shadow-md hover:shadow-yellow-400/40 transition flex flex-col items-center"
+          className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col"
         >
-          {/* Fixed size box for image */}
-          <div className="w-full h-60 flex items-center justify-center bg-white rounded-md mb-4 overflow-hidden">
+          {/* Image Section */}
+          <div className="w-full h-60 flex items-center justify-center bg-gray-50 rounded-lg mb-4 overflow-hidden">
             <img
               src={product.image}
               alt={product.name}
@@ -134,20 +106,21 @@ const AllProduct = () => {
             />
           </div>
 
-          <h2 className="text-lg font-semibold text-white">{product.name}</h2>
-          <p className="text-yellow-400 font-medium">Price: ${product.price}</p>
-          <p className="text-gray-400 text-sm mt-2 text-center">{product.description}</p>
+          {/* Product Info */}
+          <h2 className="text-lg font-semibold text-gray-900">{product.name}</h2>
+          <p className="text-gray-700 font-medium mt-1">Price: ${product.price}</p>
+          <p className="text-gray-500 text-sm mt-2">{product.description}</p>
 
-          {/* Buttons based on role */}
-          <div className="flex flex-wrap justify-center gap-3 mt-4 w-full">
+          {/* Actions */}
+          <div className="flex flex-wrap justify-center gap-3 mt-5">
             {userRole === 'admin' && (
               <>
-                <button className="btn bg-blue-600 hover:bg-blue-700 text-white">
+                <button className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold shadow-md transition duration-200">
                   Update
                 </button>
                 <button
                   onClick={() => handleDelete(product._id)}
-                  className="btn bg-red-600 hover:bg-red-700 text-white"
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md transition duration-200"
                 >
                   Delete
                 </button>
@@ -155,10 +128,13 @@ const AllProduct = () => {
             )}
             {userRole && (
               <div className="flex gap-3">
-                <button className="btn bg-green-600 hover:bg-green-700 text-white">
+                <button className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md transition duration-200">
                   Purchase
                 </button>
-                <button onClick={() => handleAddCart(product._id)} className="btn bg-orange-600 hover:bg-orange-700 text-white">
+                <button
+                  onClick={() => handleAddCart(product._id)}
+                  className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md transition duration-200"
+                >
                   Add to Cart
                 </button>
               </div>
