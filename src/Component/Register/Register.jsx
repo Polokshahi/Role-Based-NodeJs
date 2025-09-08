@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../AuthContext/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { sendEmailVerification } from "firebase/auth";
 
 const Register = () => {
   const { createUser, googleLogin } = useContext(AuthContext);
@@ -23,7 +24,22 @@ const Register = () => {
 
     try {
       // Create user in Firebase
-      await createUser(email, password);
+      await createUser(email, password)
+        .then((result) => {
+          const user = result.user;
+          sendEmailVerification(user)
+          .then(() =>{
+            alert('Email Verification Sent Successfully')
+            window.open('https://mail.google.com', '_blank');
+          })
+          .catch((err) =>{
+            console.log(err)
+          })
+            
+            
+        })
+
+
 
       // Add user to backend with default role
       await axios.post("http://localhost:3000/users", { name, email, image: imageUrl });

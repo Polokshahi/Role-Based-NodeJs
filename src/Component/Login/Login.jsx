@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { updateProfile } from "firebase/auth";
 
+
+
 const Login = () => {
   const { signIn, googleLogin } = useContext(AuthContext);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,6 +24,7 @@ const Login = () => {
       // Sign in with email/password
       const result = await signIn(email, password);
       const user = result.user;
+
 
       // Fetch user info from backend
       const res = await axios.get(`http://localhost:3000/users/${user.email}`);
@@ -46,6 +49,14 @@ const Login = () => {
     try {
       const result = await googleLogin();
       const user = result.user;
+
+      if (!user.emailVerified) {
+        alert('Not Verified! Please verify first.');
+        window.open('https://mail.google.com', '_blank');
+      } else {
+        navigate('/');
+      }
+
 
       // Add/update user in backend
       await axios.post("http://localhost:3000/users", {
@@ -91,7 +102,10 @@ const Login = () => {
                 placeholder="Enter your password"
                 className="input input-bordered focus:ring-yellow-400"
                 required
+                
+                
               />
+              
               <label className="label">
                 <a href="#" className="label-text-alt link link-hover text-yellow-400">Forgot password?</a>
               </label>
