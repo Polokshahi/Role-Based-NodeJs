@@ -1,15 +1,55 @@
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import { useLoaderData } from "react-router-dom";
+import { AuthContext } from "../../AuthContext/AuthProvider";
 
 const AddtoCart = () => {
+
+  const { user } = useContext(AuthContext);
+  const email = user?.email;
+
   const addToCartData = useLoaderData();
   console.log(addToCartData);
 
-  // const handleAddCartDelete = (id) => {
-  //   console.log("Delete product with id:", id);
+  
+  const [remainingProducts, setRemainingProducts] = useState([]);
 
-  // };
+  useEffect(() => {
+    if (addToCartData && email) {
+      const filtered = addToCartData.filter(
+        (product) => product.userEmail === email
+      );
+      setRemainingProducts(filtered);
+    }
+  }, [addToCartData, email]);
 
-  if (!addToCartData || addToCartData.length === 0) {
+  console.log(remainingProducts);
+
+
+
+  const handleAddCartDelete = (id) => {
+    console.log("Delete product with id:", id);
+    axios
+      .delete(`http://localhost:3000/addtoCart/${id}`)
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.deletedCount > 0) {
+          // Filter out the deleted product
+          const remaining = remainingProducts.filter(
+            (product) => product.productId !== id
+          );
+          setRemainingProducts(remaining);
+        }
+        alert('Product deleted successfully');
+
+
+      })
+      .catch((err) => {
+        console.error("Failed to delete product:", err);
+      });
+  };
+
+  if (!remainingProducts || remainingProducts.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <h1 className="text-3xl font-semibold text-gray-800">
@@ -24,7 +64,6 @@ const AddtoCart = () => {
       <div className="w-full max-w-6xl bg-white shadow-lg rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="table w-full">
-            {/* Table Head */}
             <thead className="bg-gray-800 text-white text-sm uppercase">
               <tr>
                 <th className="px-4 py-3">Product</th>
@@ -34,10 +73,8 @@ const AddtoCart = () => {
                 <th className="px-4 py-3 text-center">Action</th>
               </tr>
             </thead>
-
-            {/* Table Body */}
             <tbody className="text-gray-700">
-              {addToCartData?.map((product) => (
+              {remainingProducts.map((product) => (
                 <tr
                   key={product._id}
                   className="hover:bg-gray-50 transition-colors duration-200"
@@ -56,11 +93,15 @@ const AddtoCart = () => {
                   <td className="px-4 py-3">{product.userEmail}</td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      onClick={() => handleAddCartDelete(product._id)}
+                      onClick={() => handleAddCartDelete(product.productId)}
                       className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition duration-200"
                     >
-                      Delete
+                      X
                     </button>
+
+                    {/* <button className="btn">
+                      buy
+                    </button> */}
                   </td>
                 </tr>
               ))}

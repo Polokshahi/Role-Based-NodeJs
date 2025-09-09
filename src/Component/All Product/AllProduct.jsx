@@ -3,6 +3,7 @@ import { useLoaderData } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext/AuthProvider';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { v4 as uuidv4 } from 'uuid';
 
 const AllProduct = () => {
   const allProduct = useLoaderData();
@@ -52,6 +53,7 @@ const AllProduct = () => {
 
   const handleAddCart = (id) => {
     const targetedProduct = allProducts.find((product) => product._id === id);
+    const itemId = uuidv4();
     if (!targetedProduct) {
       Swal.fire({
         icon: 'error',
@@ -62,7 +64,12 @@ const AllProduct = () => {
     }
 
     axios
-      .post('http://localhost:3000/addtoCart', { ...targetedProduct, userEmail: user?.email })
+      .post('http://localhost:3000/addtoCart', 
+        { ...targetedProduct,
+           userEmail: user?.email,
+           productId : itemId, 
+
+      })
       .then((res) => {
         if (res.data.insertedId || res.data.success) {
           Swal.fire({
