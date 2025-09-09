@@ -4,10 +4,10 @@ const AddtoCart = () => {
   const addToCartData = useLoaderData();
   console.log(addToCartData);
 
-  const handleAddCartDelete = (id) => {
-    console.log("Delete product with id:", id);
-    // এখানে তোমার delete logic যাবে
-  };
+  // const handleAddCartDelete = (id) => {
+  //   console.log("Delete product with id:", id);
+
+  // };
 
   if (!addToCartData || addToCartData.length === 0) {
     return (

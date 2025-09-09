@@ -3,9 +3,10 @@ import { AuthContext } from "../../AuthContext/AuthProvider";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { updateProfile } from "firebase/auth";
+import Swal from "sweetalert2";
 
 const Login = () => {
-  const { signIn, googleLogin } = useContext(AuthContext);
+  const { signIn } = useContext(AuthContext);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -36,6 +37,32 @@ const Login = () => {
         });
       }
 
+      Swal.fire({
+        position: "top-end", 
+        icon: "success",
+        title: "Login successful!",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true, 
+        showClass: {
+          popup: `
+      animate__animated
+      animate__fadeInRight
+      animate__faster
+    `
+        },
+        hideClass: {
+          popup: `
+      animate__animated
+      animate__fadeOutRight
+      animate__faster
+    `
+        }
+      });
+
+    
+
+
       navigate("/");
     } catch (err) {
       console.error(err.message);
@@ -43,28 +70,7 @@ const Login = () => {
     }
   };
 
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     const result = await googleLogin();
-  //     const user = result.user;
 
-  //     if (!user.emailVerified) {
-  //       alert("Not Verified! Please verify your Google account first.");
-  //       return;
-  //     }
-
-  //     await axios.post("http://localhost:3000/users", {
-  //       name: user.displayName,
-  //       email: user.email,
-  //       image: user.photoURL,
-  //     });
-
-  //     navigate("/");
-  //   } catch (err) {
-  //     console.error(err.message);
-  //     setError(err.message);
-  //   }
-  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">

@@ -15,7 +15,7 @@ const VerifyEmail = () => {
           if (auth.currentUser.emailVerified) {
             setVerified(true);
             setChecking(false);
-            navigate("/"); // Verification হলে homepage-এ redirect
+            navigate("/");
           } else {
             setVerified(false);
             setChecking(false);
@@ -29,10 +29,10 @@ const VerifyEmail = () => {
       }
     };
 
-    // 3 সেকেন্ড পরপর verification চেক করা
+    
     const interval = setInterval(checkVerification, 3000);
 
-    // Component unmount হলে interval clean করা
+    
     return () => clearInterval(interval);
   }, [auth, navigate]);
 
